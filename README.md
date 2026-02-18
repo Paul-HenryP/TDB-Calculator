@@ -5,7 +5,7 @@ An interactive tool based on the research paper **"The Targeted Depletion Benchm
 This calculator helps users identify their "Minimum Critical Capital Threshold" which is the exact investment amount needed today to stop contributing to savings, coast to retirement via compound interest, and deplete assets optimally ("Die With Zero") while maintaining a safety buffer.
 
 ## The Research
-You can read the full research note on SSRN: [Link to your SSRN Paper Here]
+You can read the full research note on SSRN: [Link]
 
 ## How to Run Locally
 
@@ -29,4 +29,4 @@ The model compares two financial paths:
 
 
 - The TDB Model: Accumulating just enough capital to fund consumption until a specific age (e.g., 95), ending with zero, utilizing a safety buffer and longevity insurance to manage risk.
-The difference between these two numbers represents "Life Energy"—years of labor that can be reclaimed.
+The difference between these two numbers represents "Life Energy" which is years of labor that can be reclaimed.
