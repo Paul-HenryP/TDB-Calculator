@@ -30,3 +30,7 @@ The model compares two financial paths:
 
 - The TDB Model: Accumulating just enough capital to fund consumption until a specific age (e.g., 95), ending with zero, utilizing a safety buffer and longevity insurance to manage risk.
 The difference between these two numbers represents "Life Energy" which is years of labor that can be reclaimed.
+
+## Disclaimer
+For Educational and Research Purposes Only.
+This tool represents a theoretical model based on the Life-Cycle Hypothesis and does not constitute financial advice. Actual investment returns are uncertain and markets are volatile. The model assumes constant returns which do not reflect real-world sequence of returns risk. Users should consult a qualified financial advisor before making major financial decisions.
