@@ -5,7 +5,10 @@ An interactive tool based on the research paper **"The Targeted Depletion Benchm
 This calculator helps users identify their "Minimum Critical Capital Threshold" which is the exact investment amount needed today to stop contributing to savings, coast to retirement via compound interest, and deplete assets optimally ("Die With Zero") while maintaining a safety buffer.
 
 ## The Research
-You can read the full research note on SSRN: [Link]
+
+- SSRN (in review): *Link will be added when published*
+- Local PDF: [Targeted Depletion Benchmark.pdf](https://github.com/Paul-HenryP/TDB-Calculator/blob/433f3eacf35de07a764d331071814b995c84e616/Targeted_Depletion_Benchmark.pdf)
+
 
 ## How to Run Locally
 
