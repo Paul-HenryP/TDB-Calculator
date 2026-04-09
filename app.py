@@ -25,6 +25,8 @@ Actual investment returns are uncertain. Users should consult a qualified financ
 
 # --- Sidebar: User Inputs ---
 with st.sidebar:
+    st.markdown(f"[📄 **Read the Research Paper on SSRN**](https://dx.doi.org/10.2139/ssrn.6260638)")
+    st.divider()
     st.header("1. Profile Parameters")
     current_age = st.number_input("Current Age", 20, 80, 30)
     retirement_age = st.number_input("Target Retirement Age", current_age + 1, 100, 60)
@@ -44,6 +46,7 @@ with st.sidebar:
                               help="1.1 = 10% extra capital for sequence of returns risk")
     longevity_insurance = st.number_input("Longevity Insurance ($)", 0, 200000, 50000,
                                           help="Cost of deferred annuity at death age")
+    
 
 # --- Core Logic ---
 
