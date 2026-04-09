@@ -6,7 +6,7 @@ This calculator helps users identify their "Minimum Critical Capital Threshold" 
 
 ## The Research
 
-- SSRN (in review): *Link will be added when published*
+- You can read the full research note on SSRN: [Targeted Depletion Benchmark](https://dx.doi.org/10.2139/ssrn.6260638)
 - Local PDF: [Targeted Depletion Benchmark.pdf](https://github.com/Paul-HenryP/TDB-Calculator/blob/433f3eacf35de07a764d331071814b995c84e616/Targeted_Depletion_Benchmark.pdf)
 
 
