@@ -28,13 +28,13 @@ with st.sidebar:
     st.markdown(f"[📄 **Read the Research Paper on SSRN**](https://ssrn.com/abstract=6556206)")
     st.divider()
     st.header("1. Profile Parameters")
-    current_age = st.number_input("Current Age", 20, 80, 30)
+    current_age = st.number_input("Current Age", 20, 80, 22)
     retirement_age = st.number_input("Target Retirement Age", current_age + 1, 100, 60)
-    death_age = st.number_input("Target Depletion Age", retirement_age + 1, 110, 95)
+    death_age = st.number_input("Target Depletion Age", retirement_age + 1, 120, 100)
 
     st.header("2. Financials")
-    annual_spend = st.number_input("Annual Retirement Spend (€)", 10000, 1000000, 50000, step=1000)
-    current_savings_rate = st.number_input("Current Annual Savings (€)", 0, 500000, 20000, step=500,
+    annual_spend = st.number_input("Annual Retirement Spend (€)", 10000, 1000000, 40000, step=1000)
+    current_savings_rate = st.number_input("Current Annual Savings (€)", 0, 500000, 1000, step=500,
                                            help="Used to calculate the 'Oversaver' trajectory")
 
     st.header("3. Market Assumptions (Real)")
@@ -44,7 +44,7 @@ with st.sidebar:
     st.header("4. Risk Controls")
     safety_buffer = st.slider("Safety Buffer (λ)", 1.0, 1.5, 1.1,
                               help="1.1 = 10% extra capital for sequence of returns risk")
-    longevity_insurance = st.number_input("Longevity Insurance (€)", 0, 200000, 50000,
+    longevity_insurance = st.number_input("Longevity Insurance (€)", 0, 200000, 4999,
                                           help="Cost of deferred annuity at death age")
     
 
@@ -64,19 +64,23 @@ w_trad_today = w_trad_ret / ((1 + r_coast) ** years_to_coast)
 
 # 3. Life Energy Calculation
 life_energy_saved = 0.0
-zero_reason = ""
+time_context_msg = ""
 
 if current_savings_rate == 0:
-    zero_reason = "Input an annual savings rate > €0 to calculate time."
+    time_context_msg = "Input an annual savings rate > €0 to calculate time."
 elif w_tdb_today >= w_trad_today:
-    # This happens if the user makes the TDB extremely defensive (huge safety buffer, high insurance, extremely long life)
-    zero_reason = "Your TDB constraints are so defensive it costs more than the traditional 4% rule."
+    time_context_msg = "Your TDB constraints are so defensive it costs more than the traditional 4% rule."
 else:
     # FV of Annuity formula reversed to find N (years)
     years_to_tdb = np.log((w_tdb_today * r_coast / current_savings_rate) + 1) / np.log(1 + r_coast)
     years_to_trad = np.log((w_trad_today * r_coast / current_savings_rate) + 1) / np.log(1 + r_coast)
     life_energy_saved = max(0.0, years_to_trad - years_to_tdb)
-
+    
+    # Explain small gaps dynamically
+    if life_energy_saved < 3.0 and life_energy_saved > 0:
+        time_context_msg = "A very long retirement horizon (e.g., 35+ years) combined with safety buffers makes TDB converge mathematically with the 4% rule, reducing the time difference."
+    else:
+        time_context_msg = "Years of labor you don't need to do."
 
 # --- Metrics Display ---
 st.divider()
@@ -93,14 +97,21 @@ with col2:
 
 with col3:
     st.metric(label="Life Energy Saved", value=f"{life_energy_saved:.1f} Years")
-    
-    # Explanation logic for 0.0 years
-    if life_energy_saved <= 0:
-        st.caption(f"**Why 0.0?** {zero_reason}")
-    else:
-        st.caption("Years of labor you don't need to do.")
+    st.caption(f"**Note:** {time_context_msg}" if "converge" in time_context_msg or "0" in time_context_msg else time_context_msg)
 
 st.divider()
+
+# --- Educational Expanders ---
+with st.expander("ℹ️ What is the traditional 4% Rule?"):
+    st.write("""
+    The **4% Rule** (created by William Bengen in 1994) is a popular rule of thumb in personal finance. 
+    It states mathematically that if you accumulate **25 times your annual expenses**, you can withdraw 4% in year one, 
+    adjust for inflation every year thereafter, and never run out of money. 
+    
+    Because it calculates off *perpetuity* (preserving the principal forever so the portfolio never dies), 
+    the TDB model argues that it forces you to over-save and work longer than necessary. 
+    TDB aims to optimize depletion instead of preserving infinite wealth.
+    """)
 
 # --- Simulation for Charting ---
 
