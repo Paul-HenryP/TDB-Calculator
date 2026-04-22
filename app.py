@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import plotly.graph_objects as go
 
 # --- Page Configuration ---
 st.set_page_config(
@@ -44,7 +45,7 @@ with st.sidebar:
     st.header("4. Risk Controls")
     safety_buffer = st.slider("Safety Buffer (λ)", 1.0, 1.5, 1.1,
                               help="1.1 = 10% extra capital for sequence of returns risk")
-    longevity_insurance = st.number_input("Longevity Insurance (€)", 0, 200000, 5000,
+    longevity_insurance = st.number_input("Longevity Insurance (€)", 0, 200000, 4999,
                                           help="Cost of deferred annuity at death age")
     
 
@@ -87,7 +88,7 @@ st.divider()
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.metric(label="Your TDB Number (Today)", value=f"€{w_tdb_today:,.0f}", delta="Stop Saving Here")
+    st.metric(label="Your TDB Number (Today)", value=f"€{w_tdb_today:,.0f}", delta="Phase 1 Complete")
     st.caption("Capital needed **today** to Coast + Die with Zero.")
 
 with col2:
@@ -102,22 +103,34 @@ with col3:
 st.divider()
 
 # --- Educational Expanders ---
-with st.expander("ℹ️ What is the traditional 4% Rule?"):
-    st.write("""
-    The **4% Rule** (created by William Bengen in 1994) is a popular rule of thumb in personal finance. 
-    It states mathematically that if you accumulate **25 times your annual expenses**, you can withdraw 4% in year one, 
-    adjust for inflation every year thereafter, and never run out of money. 
-    
-    Because it calculates off *perpetuity* (preserving the principal forever so the portfolio never dies), 
-    the TDB model argues that it forces you to over-save and work longer than necessary. 
-    TDB aims to optimize depletion instead of preserving infinite wealth.
-    """)
+colA, colB = st.columns(2)
+with colA:
+    with st.expander("⏱️ What are the 3 Lifecycle Phases?"):
+        st.write("""
+        The TDB model divides your financial life into three distinct phases to maximize efficiency:
+        
+        1. **Phase 1: Accumulation (The Grind).** You work and save aggressively until your portfolio hits exactly your TDB Number. The chart assumes you are standing at the finish line of Phase 1 today.
+        2. **Phase 2: Coasting (The Growth).** You stop saving for retirement. You can spend 100% of your earnings on your current lifestyle while your portfolio grows purely through compound interest in the background.
+        3. **Phase 3: Decumulation (Die With Zero).** You retire and begin withdrawing funds. The math is optimized to slowly deplete the account, aiming safely for zero exactly at your target age (leaving only your safety buffer).
+        """)
+
+with colB:
+    with st.expander("ℹ️ What is the traditional 4% Rule?"):
+        st.write("""
+        The **4% Rule** (created by William Bengen in 1994) is a popular rule of thumb in personal finance. 
+        It states mathematically that if you accumulate **25 times your annual expenses**, you can withdraw 4% in year one, 
+        adjust for inflation every year thereafter, and never run out of money. 
+        
+        Because it calculates off *perpetuity* (preserving the principal forever so the portfolio never dies), 
+        the TDB model argues that it forces you to over-save and work longer than necessary. 
+        TDB aims to optimize depletion instead of preserving infinite wealth.
+        """)
 
 # --- Simulation for Charting ---
 
 ages = list(range(current_age, death_age + 1))
 tdb_path = []
-trad_path = []
+trad_path =[]
 oversaver_path =[]
 
 bal_tdb = w_tdb_today
@@ -147,15 +160,53 @@ chart_df = pd.DataFrame({
     "Continued Saving (Overshoot)": oversaver_path
 })
 
-# --- Visualization ---
-st.subheader("Comparison of Strategies")
-st.line_chart(chart_df, x="Age",
-              y=["TDB Strategy (Optimal)", "Traditional Strategy (Perpetuity)", "Continued Saving (Overshoot)"],
-              color=["#0000FF", "#FF0000", "#00FF00"])
+# --- Plotly Visualization ---
+st.subheader("Comparison of Strategies & Lifecycle Phases")
+
+# Initialize Plotly Figure
+fig = go.Figure()
+
+# Add Traces (Lines)
+fig.add_trace(go.Scatter(x=chart_df["Age"], y=chart_df["TDB Strategy (Optimal)"], 
+                         mode='lines', name='TDB Strategy (Optimal)', line=dict(color='#1f77b4', width=3)))
+fig.add_trace(go.Scatter(x=chart_df["Age"], y=chart_df["Continued Saving (Overshoot)"], 
+                         mode='lines', name='Continued Saving (Overshoot)', line=dict(color='#2ca02c', width=3, dash='dot')))
+fig.add_trace(go.Scatter(x=chart_df["Age"], y=chart_df["Traditional Strategy (Perpetuity)"], 
+                         mode='lines', name='Traditional Strategy (Perpetuity)', line=dict(color='#d62728', width=3)))
+
+# Add Phase Regions (Shaded Backgrounds)
+# Phase 2: Coasting
+fig.add_vrect(x0=current_age, x1=retirement_age, 
+              fillcolor="lightblue", opacity=0.15, layer="below", line_width=0,
+              annotation_text="Phase 2: Coasting", annotation_position="top left",
+              annotation_font_size=14, annotation_font_color="blue")
+
+# Phase 3: Decumulation
+fig.add_vrect(x0=retirement_age, x1=death_age, 
+              fillcolor="lightcoral", opacity=0.15, layer="below", line_width=0,
+              annotation_text="Phase 3: Decumulation", annotation_position="top left",
+              annotation_font_size=14, annotation_font_color="red")
+
+# Add Phase 1 Marker
+fig.add_vline(x=current_age, line_width=2, line_dash="dash", line_color="black",
+              annotation_text="← Phase 1 (Accumulation) Complete", annotation_position="bottom right",
+              annotation_font_size=12)
+
+# Update Layout to look clean and act responsive
+fig.update_layout(
+    xaxis_title="Age",
+    yaxis_title="Portfolio Value (€)",
+    hovermode="x unified",
+    legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01, bgcolor="rgba(255,255,255,0.8)"),
+    margin=dict(l=0, r=0, t=30, b=0)
+)
+
+# Display the Plotly chart in Streamlit
+st.plotly_chart(fig, use_container_width=True)
 
 with st.expander("📝 How to interpret this chart"):
     st.write("""
-    1. **Blue Line (TDB Strategy):** This is the efficient frontier. You stop saving today, coast to retirement, and spend down to zero. *(Notice it ends slightly above zero? That is your Safety Buffer surviving!)*
-    2. **Red Line (Traditional):** This assumes you aim for the 4% rule. Notice how you die with a massive surplus? That is unspent life energy.
-    3. **Green Line (Continued Saving):** This shows what happens if you hit your TDB number today but *keep saving* anyway. The massive gap between the Green and Blue lines represents the "Waste."
+    1. **Blue Line (TDB Strategy):** This is the efficient frontier. You hit your TDB number today, Coast to retirement without contributing another cent, and spend down to zero. *(Notice it ends slightly above zero? That is your Safety Buffer surviving!)*
+    2. **Red Line (Traditional):** This assumes you aim for the rigid 4% rule. Notice how you die with a massive surplus? That is unspent life energy.
+    3. **Green Dotted Line (Continued Saving):** This shows your trajectory if you hit your TDB number today but *keep saving* your current savings rate anyway out of habit. The massive vertical gap between the Green and Blue lines represents the "Waste."
     """)
