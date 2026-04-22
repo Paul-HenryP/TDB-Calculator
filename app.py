@@ -62,7 +62,6 @@ w_trad_ret = annual_spend / 0.04
 w_trad_today = w_trad_ret / ((1 + r_coast) ** years_to_coast)
 
 # 3. How many years to reach these targets? (Mathematical Gap Analysis)
-# Using the Present Value of an Annuity formula to find N (years)
 def calc_years_to_target(target_today, current_bal, savings_rate, r):
     gap = target_today - current_bal
     if gap <= 0:
@@ -109,7 +108,8 @@ with col1:
     st.caption("Capital needed **today** to Coast + Die with Zero.")
 
 with col2:
-    st.metric(label="Traditional Baseline (Today)", value=f"€{w_trad_today:,.0f}", delta=f"-€{w_trad_today - w_tdb_today:,.0f}", delta_color="inverse")
+    # FIXED: Positive sign and 'inverse' color makes it show up as a RED penalty.
+    st.metric(label="Traditional Baseline (Today)", value=f"€{w_trad_today:,.0f}", delta=f"+€{w_trad_today - w_tdb_today:,.0f} (Extra Cost)", delta_color="inverse")
     st.caption("Capital needed today for 4% Rule (Perpetuity).")
 
 with col3:
@@ -241,5 +241,4 @@ with st.expander("📝 How to interpret this chart"):
     st.write("""
     1. **Blue Line (TDB Strategy):** You actively save money in the green zone. The moment it enters the blue zone, **you stop saving**. Notice how it continues to grow on its own, hits your retirement target, and then safely drains toward zero.
     2. **Red Line (Traditional):** The traditional 4% rule forces you to stay in the green "saving" zone for significantly longer. You hit retirement with a massive surplus that never gets spent.
-    3. **Green Dotted Line (Continued Saving):** This shows what happens if you never transition to Phase 2, and just keep mindlessly saving until the day you retire. The gap between the Green and Blue lines at the end of your life is wasted labor.
-    """)
+    3. **Green Dotted Line (Continued
