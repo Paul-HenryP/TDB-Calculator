@@ -44,7 +44,7 @@ with st.sidebar:
     st.header("4. Risk Controls")
     safety_buffer = st.slider("Safety Buffer (λ)", 1.0, 1.5, 1.1,
                               help="1.1 = 10% extra capital for sequence of returns risk")
-    longevity_insurance = st.number_input("Longevity Insurance (€)", 0, 200000, 4999,
+    longevity_insurance = st.number_input("Longevity Insurance (€)", 0, 200000, 5000,
                                           help="Cost of deferred annuity at death age")
     
 
