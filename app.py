@@ -61,13 +61,13 @@ w_tdb_today = w_ret_needed / ((1 + r_coast) ** years_to_coast)
 w_trad_ret = annual_spend / 0.04
 w_trad_today = w_trad_ret / ((1 + r_coast) ** years_to_coast)
 
-# 3. How many years to reach these targets? (Mathematical Gap Analysis)
+# 3. How many years to reach these targets?
 def calc_years_to_target(target_today, current_bal, savings_rate, r):
     gap = target_today - current_bal
     if gap <= 0:
-        return 0.0 # Already hit the goal!
+        return 0.0
     if savings_rate == 0:
-        return np.inf # Will never hit it without saving
+        return np.inf
     
     # Check if target is unreachable because interest on the gap outpaces savings
     if (gap * r / savings_rate) >= 1:
@@ -96,7 +96,6 @@ else:
     else:
         time_context_msg = "Years of labor you don't need to do."
 
-# Limit the Coast Phase visualization to NOT exceed retirement age
 age_tdb_hit = min(retirement_age, current_age + int(np.ceil(years_to_tdb)) if years_to_tdb != np.inf else retirement_age)
 
 # --- Metrics Display ---
@@ -169,7 +168,7 @@ for age in ages:
         if bal_tdb >= target_tdb_now:
             bal_tdb = bal_tdb * (1 + r_coast) # Phase 2 (Coast)
         else:
-            bal_tdb = (bal_tdb * (1 + r_coast)) + current_savings_rate # Phase 1 (Grind)
+            bal_tdb = (bal_tdb * (1 + r_coast)) + current_savings_rate # Phase 1
             
         # 2. Traditional Strategy (Stop saving once we cross the 4% rule curve)
         if bal_trad >= target_trad_now:
@@ -198,7 +197,6 @@ st.subheader("Simulated Lifecycle Trajectory from Today")
 
 fig = go.Figure()
 
-# Add Traces
 fig.add_trace(go.Scatter(x=chart_df["Age"], y=chart_df["TDB Strategy (Optimal)"], 
                          mode='lines', name='TDB Strategy (Optimal)', line=dict(color='#1f77b4', width=3)))
 fig.add_trace(go.Scatter(x=chart_df["Age"], y=chart_df["Continued Saving (Overshoot)"], 
@@ -207,7 +205,7 @@ fig.add_trace(go.Scatter(x=chart_df["Age"], y=chart_df["Traditional Strategy (Pe
                          mode='lines', name='Traditional Strategy (Perpetuity)', line=dict(color='#d62728', width=3)))
 
 # Define Regions
-# Phase 1: Accumulation (Current Age -> When hit TDB)
+# Phase 1: Accumulation
 fig.add_vrect(x0=current_age, x1=age_tdb_hit, 
               fillcolor="lightgreen", opacity=0.15, layer="below", line_width=0,
               annotation_text="Phase 1: Accumulation", annotation_position="top left",
@@ -226,7 +224,6 @@ fig.add_vrect(x0=retirement_age, x1=death_age,
               annotation_text="Phase 3: Decumulation", annotation_position="top right",
               annotation_font_size=13, annotation_font_color="red")
 
-# Update layout
 fig.update_layout(
     xaxis_title="Age",
     yaxis_title="Portfolio Value (€)",
@@ -241,4 +238,5 @@ with st.expander("📝 How to interpret this chart"):
     st.write("""
     1. **Blue Line (TDB Strategy):** You actively save money in the green zone. The moment it enters the blue zone, **you stop saving**. Notice how it continues to grow on its own, hits your retirement target, and then safely drains toward zero.
     2. **Red Line (Traditional):** The traditional 4% rule forces you to stay in the green "saving" zone for significantly longer. You hit retirement with a massive surplus that never gets spent.
-    3. **Green Dotted Line (Continued
+    3. **Green Dotted Line (Continued Saving):** This shows what happens if you never transition to Phase 2, and just keep mindlessly saving until the day you retire. The gap between the Green and Blue lines at the end of your life is wasted labor.
+    """)
