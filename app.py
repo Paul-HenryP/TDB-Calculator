@@ -146,13 +146,19 @@ st.subheader("Simulated Lifecycle Trajectory from Today")
 
 fig = go.Figure()
 
-
 fig.add_trace(go.Scatter(x=chart_df["Age"], y=chart_df["TDB Strategy (Optimal)"], 
                          mode='lines', name='TDB Strategy (Optimal)', line=dict(color='#1f77b4', width=3)))
 fig.add_trace(go.Scatter(x=chart_df["Age"], y=chart_df["Continued Saving (Overshoot)"], 
                          mode='lines', name='Continued Saving (Overshoot)', line=dict(color='#2ca02c', width=3, dash='dot')))
 fig.add_trace(go.Scatter(x=chart_df["Age"], y=chart_df["Traditional Strategy (Perpetuity)"], 
                          mode='lines', name='Traditional Strategy (Perpetuity)', line=dict(color='#d62728', width=3)))
+
+fig.add_trace(go.Scatter(x=[None], y=[None], mode='lines', name='TDB Goal Reached (Stop Saving)', 
+                         line=dict(color='#1f77b4', width=2, dash='dash')))
+
+if age_trad_hit < retirement_age and age_trad_hit != age_tdb_hit:
+    fig.add_trace(go.Scatter(x=[None], y=[None], mode='lines', name='4% Rule Goal Reached', 
+                             line=dict(color='#d62728', width=2, dash='dash')))
 
 fig.add_vrect(x0=current_age, x1=age_tdb_hit, 
               fillcolor="lightgreen", opacity=0.15, layer="below", line_width=0,
@@ -170,12 +176,10 @@ fig.add_vrect(x0=retirement_age, x1=death_age,
               annotation_text="Phase 3: Decumulation", annotation_position="top right",
               annotation_font_size=13, annotation_font_color="red")
 
-fig.add_vline(x=age_tdb_hit, line_width=2, line_dash="dash", line_color="#1f77b4", 
-              annotation_text="TDB Hit", annotation_position="bottom right", annotation_font_size=12)
+fig.add_vline(x=age_tdb_hit, line_width=2, line_dash="dash", line_color="#1f77b4")
 
 if age_trad_hit < retirement_age and age_trad_hit != age_tdb_hit:
-    fig.add_vline(x=age_trad_hit, line_width=2, line_dash="dash", line_color="#d62728", 
-                  annotation_text="Trad Hit", annotation_position="top right", annotation_font_size=12) # Moved to Top Right
+    fig.add_vline(x=age_trad_hit, line_width=2, line_dash="dash", line_color="#d62728")
 
 fig.update_layout(
     xaxis_title="Age",
@@ -183,7 +187,7 @@ fig.update_layout(
     hovermode="x unified",
     legend=dict(
         orientation="h",
-        yanchor="bottom", y=1.05,
+        yanchor="bottom", y=1.05,  
         xanchor="center", x=0.5
     ),
     margin=dict(l=0, r=0, t=50, b=0)
