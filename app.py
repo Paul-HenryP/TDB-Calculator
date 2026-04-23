@@ -3,8 +3,14 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 
-st.set_page_config(page_title="TDB Calculator", page_icon="📉", layout="wide")
+# --- Page Configuration ---
+st.set_page_config(
+    page_title="TDB Calculator",
+    page_icon="📉",
+    layout="wide"
+)
 
+# --- Header & Intro ---
 st.title("Targeted Depletion Benchmark (TDB)")
 st.markdown("""
 **A Constraint-Optimization Model for Labor Cessation.**  
@@ -12,33 +18,47 @@ Based on the research by *Paul-Henry Paltmann*.
 *Note: All monetary outputs and inputs are in today's purchasing power (inflation-adjusted).*
 """)
 
+# --- DISCLAIMER ---
 st.warning("""
 **Disclaimer:** This tool is for educational and research purposes only. 
 It represents a theoretical model based on the Life-Cycle Hypothesis and does not constitute financial advice. 
 Actual investment returns are uncertain. Users should consult a qualified financial advisor before making decisions.
 """)
 
+# --- Sidebar: User Inputs ---
 with st.sidebar:
     st.markdown("[📄 **Read the Research Paper on SSRN**](https://ssrn.com/abstract=6556206)")
     st.divider()
     
     st.header("1. Profile Parameters")
-    current_age = st.number_input("Current Age", 20, 80, 25)
-    retirement_age = st.number_input("Target Retirement Age", current_age + 1, 100, 60)
-    death_age = st.number_input("Target Depletion Age", retirement_age + 1, 120, 100)
+    current_age = st.number_input("Current Age", 20, 80, 25, 
+                                  help="Your current age, marking the start of Phase 1 (Accumulation/The Grind).")
+    retirement_age = st.number_input("Target Retirement Age", current_age + 1, 100, 60, 
+                                     help="The age you plan to stop working and begin drawing down your portfolio (Start of Phase 3).")
+    death_age = st.number_input("Target Depletion Age", retirement_age + 1, 120, 100, 
+                                help="The exact age your portfolio mathematically hits €0. TDB uses this finite life horizon to prevent over-saving. To mitigate longevity risk, this is paired with the Longevity Insurance parameter below.")
 
     st.header("2. Financials")
-    annual_spend = st.number_input("Annual Retirement Spend (€)", 10000, 1000000, 40000, step=1000)
-    current_portfolio = st.number_input("Current Portfolio Balance (€)", 0, 5000000, 0, step=1000)
-    current_savings_rate = st.number_input("Current Annual Savings (€)", 0, 500000, 15000, step=500)
+    annual_spend = st.number_input("Annual Retirement Spend (€)", 10000, 1000000, 40000, step=1000, 
+                                   help="Your desired yearly spending in retirement, expressed in today's purchasing power (inflation-adjusted).")
+    current_portfolio = st.number_input("Current Portfolio Balance (€)", 0, 5000000, 0, step=1000, 
+                                        help="The capital you have completely invested today. The TDB model calculates the gap between this and your Coast target.")
+    current_savings_rate = st.number_input("Current Annual Savings (€)", 0, 500000, 15000, step=500, 
+                                           help="Your yearly contribution speed. Used to calculate how many 'Years of Labor' (Life Energy) you have left until you hit the exact TDB benchmark.")
 
     st.header("3. Market Assumptions (Real)")
-    r_coast = st.slider("Coast Growth Rate (%)", 1.0, 12.0, 7.0) / 100
-    r_retire = st.slider("Decumulation Growth Rate (%)", 1.0, 10.0, 4.0) / 100
+    r_coast = st.slider("Coast Growth Rate (%)", 1.0, 12.0, 7.0, 
+                        help="Expected real (after-inflation) return during the Accumulation & Coasting phases. This usually assumes a more aggressive, equity-heavy portfolio.") / 100
+    r_retire = st.slider("Decumulation Growth Rate (%)", 1.0, 10.0, 4.0, 
+                         help="Expected real return during retirement. Usually lower (e.g., 4%) to reflect a conservative, bond-weighted portfolio designed to limit volatility.") / 100
 
     st.header("4. Risk Controls")
-    safety_buffer = st.slider("Safety Buffer (λ)", 1.0, 1.5, 1.1)
-    longevity_insurance = st.number_input("Longevity Insurance (€)", 0, 200000, 50000)
+    safety_buffer = st.slider("Safety Buffer (λ)", 1.0, 1.5, 1.1, 
+                              help="A mathematical multiplier (e.g., 1.10 = 10% extra capital) that acts as a structural defense against Sequence of Returns Risk (SRR). It buffers the portfolio so an early market crash doesn't ruin the depletion plan.")
+    longevity_insurance = st.number_input("Longevity Insurance (€)", 0, 200000, 50000, 
+                                          help="The estimated cost of a Deferred Income Annuity (DIA) purchased at retirement. It pays out only if you live PAST your Target Depletion Age, acting as a tail-risk hedge so you can safely aim for a zero terminal wealth without fear of starvation.")
+
+# --- Core Logic ---
 
 n_years_retirement = death_age - retirement_age
 annuity_factor = (1 - (1 + r_retire) ** -n_years_retirement) / r_retire
@@ -80,6 +100,7 @@ else:
 age_tdb_hit = min(retirement_age, current_age + int(np.ceil(years_to_tdb)) if years_to_tdb != np.inf else retirement_age)
 age_trad_hit = min(retirement_age, current_age + int(np.ceil(years_to_trad)) if years_to_trad != np.inf else retirement_age)
 
+# --- Metrics Display ---
 st.divider()
 col1, col2, col3 = st.columns(3)
 
@@ -112,6 +133,7 @@ with colB:
         Because it optimizes for infinite wealth preservation, the TDB model demonstrates it forces individuals to over-save and work unnecessarily long.
         """)
 
+# --- Simulation for Charting ---
 ages = list(range(current_age, death_age + 1))
 tdb_path, trad_path, oversaver_path = [], [],[]
 bal_tdb = bal_trad = bal_oversaver = current_portfolio
@@ -187,7 +209,7 @@ fig.update_layout(
     hovermode="x unified",
     legend=dict(
         orientation="h",
-        yanchor="bottom", y=1.05,  
+        yanchor="bottom", y=1.05,
         xanchor="center", x=0.5
     ),
     margin=dict(l=0, r=0, t=50, b=0)
