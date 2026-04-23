@@ -223,3 +223,29 @@ with st.expander("📝 How to interpret this chart"):
     2. **Red Line (Traditional):** The traditional 4% rule forces you to save for significantly longer (dashed red line). You hit retirement with a massive surplus that never gets spent.
     3. **Green Dotted Line (Continued Saving):** This shows what happens if you never transition to Phase 2 and keep mindlessly saving until retirement. The gap between the Green and Blue lines represents wasted labor.
     """)
+
+st.divider()
+
+with st.expander("💡 Why does TDB only save me 1-2 years? (The TDB 'Sweet Spot')"):
+    st.markdown("""
+    If you are in your 20s and planning an early retirement, you might notice the "Life Energy Saved" is only 1 or 2 years. Did the math fail? No! 
+    
+    You have discovered a fundamental mathematical truth about compound interest. Here is why it happens, and who TDB actually helps the most.
+    
+    ### 1. The Annuity Trap (Too long in retirement)
+    If you retire at 40 and plan to live to 100, your portfolio has to last **60 years**. In finance, the cost of a 60-year annuity is mathematically almost identical to the cost of a perpetuity (an account that lasts forever). Because the timelines are so long, the TDB Target simply converges with the Traditional 4% Rule.
+    
+    ### 2. The Discount Trap (Too much time to compound)
+    Even if the Traditional method requires €300,000 more than TDB at age 65, if you are 25 today, that €300,000 gap is heavily discounted by 40 years of 7% compound growth. The actual difference *today* between the two targets might only be €15,000. If you are saving €15,000 a year, you bridge that gap with just 1 year of extra work.
+    
+    ### The TDB Sweet Spot
+    This model is not a cheat code for 25-year-olds to retire at 30. **TDB is a mathematical exit strategy for mid-career professionals (age 40-55) looking to escape the "One More Year" syndrome.** 
+    
+    **Example: The 45-Year-Old Manager**
+    * **Profile:** Age 45, Retire at 65, Die at 95. Target Spend: €40k/yr. Current Savings Rate: €10k/yr.
+    * **TDB Target Today:** ~€196,000
+    * **Traditional Target Today:** ~€258,000
+    * **Life Energy Saved: 19+ Years!**
+    
+    For this 45-year-old, trying to reach the Traditional €258k target on a €10k savings rate is a punishing 20-year grind because the goal keeps compounding away from them. TDB proves mathematically that if they have €196k today, they can quit their stressful job, take a low-stress "Coast" job to just cover their daily bills, and effectively reclaim nearly two decades of their life!
+    """)
