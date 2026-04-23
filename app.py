@@ -141,25 +141,53 @@ chart_df = pd.DataFrame({
     "Continued Saving (Overshoot)": oversaver_path
 })
 
+# --- Plotly Visualization ---
 st.subheader("Simulated Lifecycle Trajectory from Today")
+
 fig = go.Figure()
 
-fig.add_trace(go.Scatter(x=chart_df["Age"], y=chart_df["TDB Strategy (Optimal)"], mode='lines', name='TDB Strategy (Optimal)', line=dict(color='#1f77b4', width=3)))
-fig.add_trace(go.Scatter(x=chart_df["Age"], y=chart_df["Continued Saving (Overshoot)"], mode='lines', name='Continued Saving (Overshoot)', line=dict(color='#2ca02c', width=3, dash='dot')))
-fig.add_trace(go.Scatter(x=chart_df["Age"], y=chart_df["Traditional Strategy (Perpetuity)"], mode='lines', name='Traditional Strategy (Perpetuity)', line=dict(color='#d62728', width=3)))
 
-fig.add_vrect(x0=current_age, x1=age_tdb_hit, fillcolor="lightgreen", opacity=0.15, layer="below", line_width=0, annotation_text="Phase 1: Accumulation", annotation_position="top left", annotation_font_size=13, annotation_font_color="green")
+fig.add_trace(go.Scatter(x=chart_df["Age"], y=chart_df["TDB Strategy (Optimal)"], 
+                         mode='lines', name='TDB Strategy (Optimal)', line=dict(color='#1f77b4', width=3)))
+fig.add_trace(go.Scatter(x=chart_df["Age"], y=chart_df["Continued Saving (Overshoot)"], 
+                         mode='lines', name='Continued Saving (Overshoot)', line=dict(color='#2ca02c', width=3, dash='dot')))
+fig.add_trace(go.Scatter(x=chart_df["Age"], y=chart_df["Traditional Strategy (Perpetuity)"], 
+                         mode='lines', name='Traditional Strategy (Perpetuity)', line=dict(color='#d62728', width=3)))
+
+fig.add_vrect(x0=current_age, x1=age_tdb_hit, 
+              fillcolor="lightgreen", opacity=0.15, layer="below", line_width=0,
+              annotation_text="Phase 1: Accumulation", annotation_position="top left",
+              annotation_font_size=13, annotation_font_color="green")
 
 if age_tdb_hit < retirement_age:
-    fig.add_vrect(x0=age_tdb_hit, x1=retirement_age, fillcolor="lightblue", opacity=0.15, layer="below", line_width=0, annotation_text="Phase 2: Coasting", annotation_position="top left", annotation_font_size=13, annotation_font_color="blue")
+    fig.add_vrect(x0=age_tdb_hit, x1=retirement_age, 
+                  fillcolor="lightblue", opacity=0.15, layer="below", line_width=0,
+                  annotation_text="Phase 2: Coasting", annotation_position="top left",
+                  annotation_font_size=13, annotation_font_color="blue")
 
-fig.add_vrect(x0=retirement_age, x1=death_age, fillcolor="lightcoral", opacity=0.15, layer="below", line_width=0, annotation_text="Phase 3: Decumulation", annotation_position="top right", annotation_font_size=13, annotation_font_color="red")
+fig.add_vrect(x0=retirement_age, x1=death_age, 
+              fillcolor="lightcoral", opacity=0.15, layer="below", line_width=0,
+              annotation_text="Phase 3: Decumulation", annotation_position="top right",
+              annotation_font_size=13, annotation_font_color="red")
 
-fig.add_vline(x=age_tdb_hit, line_width=2, line_dash="dash", line_color="#1f77b4", annotation_text="TDB Goal Hit", annotation_position="bottom right", annotation_font_size=12)
-if age_trad_hit < retirement_age:
-    fig.add_vline(x=age_trad_hit, line_width=2, line_dash="dash", line_color="#d62728", annotation_text="Trad Goal Hit", annotation_position="bottom right", annotation_font_size=12)
+fig.add_vline(x=age_tdb_hit, line_width=2, line_dash="dash", line_color="#1f77b4", 
+              annotation_text="TDB Hit", annotation_position="bottom right", annotation_font_size=12)
 
-fig.update_layout(xaxis_title="Age", yaxis_title="Portfolio Value (€)", hovermode="x unified", legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01, bgcolor="rgba(255,255,255,0.8)"), margin=dict(l=0, r=0, t=30, b=0))
+if age_trad_hit < retirement_age and age_trad_hit != age_tdb_hit:
+    fig.add_vline(x=age_trad_hit, line_width=2, line_dash="dash", line_color="#d62728", 
+                  annotation_text="Trad Hit", annotation_position="top right", annotation_font_size=12) # Moved to Top Right
+
+fig.update_layout(
+    xaxis_title="Age",
+    yaxis_title="Portfolio Value (€)",
+    hovermode="x unified",
+    legend=dict(
+        orientation="h",
+        yanchor="bottom", y=1.05,
+        xanchor="center", x=0.5
+    ),
+    margin=dict(l=0, r=0, t=50, b=0)
+)
 
 st.plotly_chart(fig, use_container_width=True)
 
